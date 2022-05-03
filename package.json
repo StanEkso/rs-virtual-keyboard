@@ -1,0 +1,23 @@
+{
+  "name": "rs-virtual-keyboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StanEkso/rs-virtual-keyboard.git"
+  },
+  "author": "Stanislav Ekso",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/StanEkso/rs-virtual-keyboard/issues"
+  },
+  "homepage": "https://github.com/StanEkso/rs-virtual-keyboard#readme",
+  "devDependencies": {
+    "eslint": "^8.14.0"
+  }
+}
