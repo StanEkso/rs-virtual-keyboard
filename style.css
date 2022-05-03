@@ -1,0 +1,37 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+.keyboard__wrapper {
+    max-width: 90%;
+    margin: 0 auto;
+
+    flex-wrap: wrap;
+    
+}
+.keyboard__row {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+}
+.keyboard__button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 64px;
+    background: #cdcdcd;
+    height: 64px;
+    font-size: 36px;
+}
+.keyboard__button_wide-0 {
+    width: 80px;
+}
+.keyboard__button_wide-1 {
+    width: 108px;
+}
+.keyboard__button_wide-2 {
+    width: 144px;
+}
+.keyboard__button_space {
+    width: 400px;
+}
