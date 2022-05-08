@@ -7,11 +7,13 @@ document.head.append(link);
 const textarea = document.createElement('textarea');
 document.body.append(textarea)
 textarea.addEventListener('keypress', () => event.preventDefault())
+document.body.addEventListener('keydown', () => event.preventDefault())
 class Keyboard {
     #filled;
     #locale;
+    #node
     currow;
-    constructor (node) {
+    constructor(node) {
         this.container = document.createElement('div');
         this.container.classList.add('keyboard__wrapper');
         this.#filled = false;
@@ -20,9 +22,23 @@ class Keyboard {
         this.capsed = false;
         this.currow = document.createElement('div')
         this.currow.classList.add('keyboard__row')
-        node.append(this.container)
+        this.#node = node;
+        //node.append(this.container)
         this.container.append(this.currow);
         this.createKeyListeners();
+
+
+        this.specialActions = {
+            'Backspace': deletePrev,
+            'Delete': deleteNext,
+            'Tab': "    ",
+            'ArrowLeft': moveLeft,
+            'ArrowRight': moveRight
+        }
+    }
+    init() {
+        this.#node.append(this.container)
+        this.fill(this.#locale === 'ru' ? RU : EN);
     }
     changeLanguage() {
         this.#locale = this.#locale === 'ru' ? 'en' : 'ru';
@@ -43,10 +59,11 @@ class Keyboard {
         const listener = () => this.buttons.forEach(button => {
             if (!button.shift) return;
             button.container.textContent = this.capsed ? button.shift : button.key;
-            document.body.removeEventListener('keydown',listener)
+            document.body.removeEventListener('keydown', listener)
         })
         this.buttons.forEach(button => {
             if (!button.shift) return;
+            if (button.key.toUpperCase() != button.shift && this.capsed) button.container.textContent = button.shift
             button.container.textContent = this.capsed ? button.key : button.shift;
         })
         document.body.addEventListener('keyup', listener)
@@ -57,27 +74,56 @@ class Keyboard {
             if (!button.shift) return;
             if (button.key.toUpperCase() != button.shift) return;
             button.container.textContent = this.capsed ? button.shift : button.key
+
+
         })
     }
     createKeyListeners() {
         document.body.addEventListener('keydown', (event) => {
             if (event.key == 'Shift') this.shiftHandler();
             else if (event.key == 'CapsLock') this.capsHandler();
+            const container = document.querySelector(`.${event.code}`);
+            this.pressTheButton(container)
+            if (container.classList.contains('functional')) {
+                const action = this.specialActions[event.key];
+                if (typeof action == 'function') action();
+                else if (!action) ;
+                else textarea.textContent += action;
+            } else {
+                textarea.value += container.textContent;
+            }
         })
+    }
+    pressTheButton(container) {
+        const listener = () => {
+            document.body.removeEventListener('keyup', listener)
+            container.classList.remove('_press');
+        }
+        container.classList.add('_press');
+        document.body.addEventListener('keyup', listener)
     }
 }
 
 class Button {
-    constructor (object, parent) {
+    constructor(object, parent) {
         this.parent = parent
-        const {key, code, shift, extras, end } = object;
+        const { key, code, shift, extras, end } = object;
         this.container = document.createElement('div');
         this.code = code;
         this.key = key;
         this.shift = shift;
         const addition = extras ? extras : ''
-        this.container.classList.add('keyboard__button', ...addition);
-        this.container.textContent = this.key;
+        this.container.classList.add('keyboard__button', code, ...addition);
+        if (this.key.match(/Arrow/)) {
+            let className = this.key.split('Arrow')[1].toLowerCase();
+            this.container.innerHTML = `<i class="arrow ${className}"></i>`
+
+        } else if (this.key === 'Control') {
+            this.container.textContent = 'ctrl';
+        } else if (this.key === 'CapsLock') this.container.textContent = 'Caps';
+        else
+            this.container.textContent = this.key;
+        
         this.container.addEventListener('click', () => this.clickHandler())
         parent.currow.append(this.container)
         if (end) {
@@ -87,20 +133,54 @@ class Button {
         return this;
     }
     updateWithData(object) {
-        const {key, code, shift} = object;
+        const { key, code, shift } = object;
         this.code = code;
         this.shift = shift;
         this.key = key;
         this.container.textContent = this.key;
     }
     clickHandler() {
-        if (!this.container.classList.contains('functional')) textarea.value+=this.container.textContent;
+        const listener = () => {
+            this.container.removeEventListener('mouseup', listener);
+            this.container.classList.remove('_press')
+        }
+        this.container.classList.add('_press')
+        setTimeout(() => this.container.classList.remove('_press'), 100)
+        if (!this.container.classList.contains('functional')) {
+
+            textarea.value += this.container.textContent;
+
+        }
+        else if (this.container.classList.contains('functional')) {
+            console.log(this.key);
+            const action = this.parent.specialActions[this.key];
+            if (typeof action == 'function') action();
+            else if (!action) ;
+            else textarea.textContent += action;
+        }
         else if (this.code == 'CapsLock') {
             this.parent.capsHandler()
         }
     }
-}
 
+}
+function moveLeft() {
+    textarea.selectionEnd--;
+}
+function moveRight() {
+    textarea.selectionStart++;
+}
+function deletePrev() {
+    const pos = textarea.selectionEnd;
+    const last = textarea.value.slice(pos, textarea.value.length);
+    textarea.value = textarea.value.slice(0, pos - 1) + last;
+    textarea.selectionEnd = pos - 1;
+}
+function deleteNext() {
+    const pos = textarea.selectionEnd;
+    const last = textarea.value.slice(pos + 1, textarea.value.length);
+    textarea.value = textarea.value.slice(0, pos) + last;
+    textarea.selectionEnd = pos;
+}
 const kboard = new Keyboard(document.body);
-kboard.changeLanguage()
-kboard.changeLanguage()
+kboard.init()
