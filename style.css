@@ -1,0 +1,79 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+.keyboard__wrapper {
+    max-width: 90%;
+    margin: 0 auto;
+
+    flex-wrap: wrap;
+    
+}
+.keyboard__row {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+}
+.keyboard__button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 64px;
+    background: #cdcdcd;
+    height: 64px;
+    font-size: 36px;
+    transition: 0.15s ease all;
+}
+.keyboard__button_wide-0 {
+    width: 80px;
+}
+.keyboard__button_wide-1 {
+    width: 108px;
+}
+.keyboard__button_wide-2 {
+    width: 144px;
+}
+.keyboard__button_wide-3 {
+    width: 152px;
+}
+.keyboard__button_space {
+    width: 400px;
+}
+._press {
+    transform: scale(0.925);
+    background: #a0a0a0;
+}
+.arrow {
+    border: solid #000;
+    border-width: 0 5px 5px 0;
+    display: inline-block;
+    padding: 5px;
+  }
+  
+  .right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
+  
+  .left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }
+  
+  .up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+  }
+  
+  .down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
+
+  textarea {
+      font-size: 35px;
+      min-width: 90%;
+      min-height: 400px;
+      display: block;
+      margin: 0 auto;
+  }
