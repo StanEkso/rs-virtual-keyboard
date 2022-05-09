@@ -65,13 +65,19 @@ class Keyboard {
         const listener = () => this.buttons.forEach(button => {
             if (event.key != 'Shift') return;
             if (!button.shift) return;
-            button.container.textContent = this.capsed ? button.shift : button.key;
+            if (button.key.toUpperCase() != button.shift) 
+                button.container.textContent = button.key
+            else
+                button.container.textContent = this.capsed ? button.shift : button.key;
+            
             document.body.removeEventListener('keydown', listener)
         })
         this.buttons.forEach(button => {
             if (!button.shift) return;
-            if (button.key.toUpperCase() != button.shift && this.capsed) button.container.textContent = button.shift
-            button.container.textContent = this.capsed ? button.key : button.shift;
+            if (button.key.toUpperCase() != button.shift) 
+                button.container.textContent = button.shift
+            else
+                button.container.textContent = this.capsed ? button.key : button.shift;
         })
         document.body.addEventListener('keyup', listener)
     }
