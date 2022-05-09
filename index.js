@@ -28,7 +28,6 @@ class Keyboard {
         this.currow = document.createElement('div')
         this.currow.classList.add('keyboard__row')
         this.#node = node;
-        //node.append(this.container)
         this.container.append(this.currow);
         this.createKeyListeners();
 
@@ -37,7 +36,7 @@ class Keyboard {
             'Backspace': deletePrev,
             'Delete': deleteNext,
             'Enter': '\n',
-        'Tab': '    ',
+            'Tab': '    ',
             'ArrowLeft': moveLeft,
             'ArrowRight': moveRight
         }
