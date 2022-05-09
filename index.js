@@ -5,9 +5,14 @@ link.rel = 'stylesheet';
 link.href = './style.css';
 document.head.append(link);
 const textarea = document.createElement('textarea');
+textarea.value = 'Привет, проверяющий! Эта клавиатура делалась под Windows. Язык переключается с помощью Shift + Alt. Спасибо!'
 document.body.append(textarea)
 textarea.addEventListener('keypress', () => event.preventDefault())
 document.body.addEventListener('keydown', () => event.preventDefault())
+
+
+
+
 class Keyboard {
     #filled;
     #locale;
@@ -17,7 +22,7 @@ class Keyboard {
         this.container = document.createElement('div');
         this.container.classList.add('keyboard__wrapper');
         this.#filled = false;
-        this.#locale = localStorage.getItem('locale') || 'ru';
+        this.#locale = localStorage.getItem('locale') || 'en';
         this.shifted = false;
         this.capsed = false;
         this.currow = document.createElement('div')
@@ -31,7 +36,8 @@ class Keyboard {
         this.specialActions = {
             'Backspace': deletePrev,
             'Delete': deleteNext,
-            'Tab': "    ",
+            'Enter': '\n',
+        'Tab': '    ',
             'ArrowLeft': moveLeft,
             'ArrowRight': moveRight
         }
@@ -42,6 +48,7 @@ class Keyboard {
     }
     changeLanguage() {
         this.#locale = this.#locale === 'ru' ? 'en' : 'ru';
+        localStorage.setItem('locale',this.#locale)
         this.fill(this.#locale === 'ru' ? RU : EN);
     }
     fill(data) {
@@ -57,6 +64,7 @@ class Keyboard {
     }
     shiftHandler() {
         const listener = () => this.buttons.forEach(button => {
+            if (event.key != 'Shift') return;
             if (!button.shift) return;
             button.container.textContent = this.capsed ? button.shift : button.key;
             document.body.removeEventListener('keydown', listener)
@@ -84,11 +92,12 @@ class Keyboard {
             else if (event.key == 'CapsLock') this.capsHandler();
             const container = document.querySelector(`.${event.code}`);
             this.pressTheButton(container)
+            if ((event.key == 'Shift' && event.altKey) || (event.key == 'Alt' && event.shiftKey)) this.changeLanguage();
             if (container.classList.contains('functional')) {
                 const action = this.specialActions[event.key];
                 if (typeof action == 'function') action();
                 else if (!action) ;
-                else textarea.textContent += action;
+                else textarea.value += action;
             } else {
                 textarea.value += container.textContent;
             }
@@ -114,16 +123,7 @@ class Button {
         this.shift = shift;
         const addition = extras ? extras : ''
         this.container.classList.add('keyboard__button', code, ...addition);
-        if (this.key.match(/Arrow/)) {
-            let className = this.key.split('Arrow')[1].toLowerCase();
-            this.container.innerHTML = `<i class="arrow ${className}"></i>`
-
-        } else if (this.key === 'Control') {
-            this.container.textContent = 'ctrl';
-        } else if (this.key === 'CapsLock') this.container.textContent = 'Caps';
-        else
-            this.container.textContent = this.key;
-        
+        this.fillKey();
         this.container.addEventListener('click', () => this.clickHandler())
         parent.currow.append(this.container)
         if (end) {
@@ -132,27 +132,34 @@ class Button {
         }
         return this;
     }
+    fillKey() {
+        if (this.key.match(/Arrow/)) {
+            let className = this.key.split('Arrow')[1].toLowerCase();
+            this.container.innerHTML = `<i class="arrow ${className}"></i>`
+
+        } else if (this.key === 'Control') {
+            this.container.textContent = 'ctrl';
+        } else if (this.key === 'CapsLock') this.container.textContent = 'Caps';
+        else if (this.key === 'Delete') this.container.textContent = 'Del'
+        else {
+            this.container.textContent = this.key;
+        }  
+    }
     updateWithData(object) {
         const { key, code, shift } = object;
         this.code = code;
         this.shift = shift;
         this.key = key;
-        this.container.textContent = this.key;
+        this.fillKey();
     }
     clickHandler() {
-        const listener = () => {
-            this.container.removeEventListener('mouseup', listener);
-            this.container.classList.remove('_press')
-        }
         this.container.classList.add('_press')
         setTimeout(() => this.container.classList.remove('_press'), 100)
         if (!this.container.classList.contains('functional')) {
-
             textarea.value += this.container.textContent;
-
         }
+        if (this.container.classList.contains('CapsLock')) this.parent.capsHandler();
         else if (this.container.classList.contains('functional')) {
-            console.log(this.key);
             const action = this.parent.specialActions[this.key];
             if (typeof action == 'function') action();
             else if (!action) ;
